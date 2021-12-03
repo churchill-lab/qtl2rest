@@ -119,6 +119,7 @@ http_get_datasets <- function(request, response) {
         elapsed <- proc.time() - ptm
 
         data <- list(
+            request = request$parameters_query,
             result = datasets,
             time   = elapsed["elapsed"]
         )
@@ -148,6 +149,7 @@ http_get_datasets_stats <- function(request, response) {
         elapsed <- proc.time() - ptm
 
         data <- list(
+            request = request$parameters_query,
             result = datasets,
             time   = elapsed["elapsed"]
         )
