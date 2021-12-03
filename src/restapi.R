@@ -127,8 +127,11 @@ http_get_datasets <- function(request, response) {
         response$body <- toJSON(data, auto_unbox = TRUE)
     },
     error = function(e) {
-        data <- list(method = "http_get_datasets",
-                     error  = e$message)
+        data <- list(
+            request = request$parameters_query,
+            method = "http_get_datasets",
+            error  = e$message
+        )
         logger$error(paste0("http_get_datasets|", e$message))
         response$status_code <- 400
         response$body <- toJSON(data, auto_unbox = TRUE)
@@ -153,8 +156,11 @@ http_get_datasets_stats <- function(request, response) {
         response$body <- toJSON(data, auto_unbox = TRUE)
     },
     error = function(e) {
-        data <- list(method = "http_get_datasets_stats",
-                     error  = e$message)
+        data <- list(
+            request = request$parameters_query,
+            method = "http_get_datasets_stats",
+            error  = e$message
+        )
         logger$error(paste0("http_get_datasets_stats|", e$message))
         response$status_code <- 400
         response$body <- toJSON(data, auto_unbox = TRUE)
@@ -170,6 +176,10 @@ http_get_rankings <- function(request, response) {
         chrom <- request$parameters_query[["chrom"]]
         max_value <- nvl_int(request$parameters_query[["max_value"]], 1000)
 
+        if (gtools::invalid(dataset)) {
+            stop('dataset is required')
+        }
+
         ds <- get_dataset(dataset)
         rankings <- get_rankings(
             ds        = ds,
@@ -180,6 +190,7 @@ http_get_rankings <- function(request, response) {
         elapsed <- proc.time() - ptm
         
         data <- list(
+            request = request$parameters_query,
             result = rankings,
             time   = elapsed["elapsed"]
         )
@@ -188,8 +199,11 @@ http_get_rankings <- function(request, response) {
         response$body <- toJSON(data, auto_unbox = TRUE)
     },
     error = function(e) {
-        data <- list(method = "http_get_rankings",
-                     error  = e$message)
+        data <- list(
+            request = request$parameters_query,
+            method = "http_get_rankings",
+            error  = e$message
+        )
         logger$error(paste0("http_get_rankings|", e$message))
         response$status_code <- 400
         response$body <- toJSON(data, auto_unbox = TRUE)
@@ -211,6 +225,12 @@ http_get_lodscan <- function(request, response) {
             intcovar <- NULL
         }
         
+        if (gtools::invalid(dataset)) {
+            stop('dataset is required')
+        } else if (gtools::invalid(id)) {
+            stop('id is required')
+        }
+
         ds <- get_dataset(dataset)
         lod <- get_lod_scan(
             ds       = ds,
@@ -232,6 +252,7 @@ http_get_lodscan <- function(request, response) {
         elapsed <- proc.time() - ptm
   
         data <- list(
+            request = request$parameters_query,
             result = lod,
             time   = elapsed["elapsed"]
         )
@@ -264,6 +285,16 @@ http_get_lodscan_samples <- function(request, response) {
             intcovar <- NULL
         }
         
+        if (gtools::invalid(dataset)) {
+            stop('dataset is required')
+        } else if (gtools::invalid(id)) {
+            stop('id is required')
+        } else if (gtools::invalid(intcovar)) {
+            stop('intcovar is required')
+        } else if (gtools::invalid(chrom)) {
+            stop('chrom is required')
+        }
+
         ds <- get_dataset(dataset)
         lod <- get_lod_scan_by_sample(
             ds       = ds, 
@@ -285,6 +316,7 @@ http_get_lodscan_samples <- function(request, response) {
         elapsed <- proc.time() - ptm
 
         data <- list(
+            request = request$parameters_query,
             result = lod,
             time   = elapsed["elapsed"]
         )
@@ -293,8 +325,11 @@ http_get_lodscan_samples <- function(request, response) {
         response$body <- toJSON(data, auto_unbox = TRUE)
     },
     error = function(e) {
-        data <- list(method = "http_get_lodscan_samples",
-                     error  = e$message)
+        data <- list(
+            request = request$parameters_query,
+            method = "http_get_lodscan_samples",
+            error  = e$message
+        )
         logger$error(paste0("http_get_lodscan_samples|", e$message))
         response$status_code <- 400
         response$body <- toJSON(data, auto_unbox = TRUE)
@@ -313,13 +348,20 @@ http_get_foundercoefficients <- function(request, response) {
         blup <- request$parameters_query[["blup"]]
         cores <- nvl_int(request$parameters_query[["cores"]], 5)
         expand <- to_boolean(request$parameters_query[["expand"]])
-        # default to TRUE
-        center <- nvl(request$parameters_query[["center"]], "TRUE")
+        center <- to_boolean(nvl(request$parameters_query[["center"]], "TRUE"))
         
         if (tolower(nvl(intcovar, "")) %in% c("", "additive")) {
             intcovar <- NULL
         }
-        
+
+        if (gtools::invalid(dataset)) {
+            stop('dataset is required')
+        } else if (gtools::invalid(id)) {
+            stop('id is required')
+        } else if (gtools::invalid(chrom)) {
+            stop('chrom is required')
+        }
+
         ds <- get_dataset(dataset)
         effect <- get_founder_coefficients(
             ds       = ds, 
@@ -343,6 +385,7 @@ http_get_foundercoefficients <- function(request, response) {
         elapsed <- proc.time() - ptm
   
         data <- list(
+            request = request$parameters_query,
             result = effect,
             time   = elapsed["elapsed"]
         )
@@ -351,8 +394,11 @@ http_get_foundercoefficients <- function(request, response) {
         response$body <- toJSON(data, auto_unbox = TRUE)
     },
     error = function(e) {
-        data <- list(method = "http_get_foundercoefficients",
-                     error  = e$message)
+        data <- list(
+            request = request$parameters_query,
+            method = "http_get_foundercoefficients",
+            error  = e$message
+        )
         logger$error(paste0("http_get_foundercoefficients|", e$message))
         response$status_code <- 400
         response$body <- toJSON(data, auto_unbox = TRUE)
@@ -367,6 +413,12 @@ http_get_expression <- function(request, response) {
         dataset <- request$parameters_query[["dataset"]]
         id <- request$parameters_query[["id"]]
       
+        if (gtools::invalid(dataset)) {
+            stop('dataset is required')
+        } else if (gtools::invalid(id)) {
+            stop('id is required')
+        }
+
         ds <- get_dataset(dataset)
         expression <- get_expression(
             ds = ds, 
@@ -379,6 +431,7 @@ http_get_expression <- function(request, response) {
         elapsed <- proc.time() - ptm
       
         data <- list(
+            request = request$parameters_query,
             result = expression,
             time   = elapsed["elapsed"]
         )
@@ -387,8 +440,11 @@ http_get_expression <- function(request, response) {
         response$body <- toJSON(data, auto_unbox = TRUE)
     },
     error = function(e) {
-        data <- list(method = "http_get_expression",
-                     error  = e$message)
+        data <- list(
+            request = request$parameters_query,
+            method = "http_get_expression",
+            error  = e$message
+        )
         logger$error(paste0("http_get_expression|", e$message))
         response$status_code <- 400
         response$body <- toJSON(data, auto_unbox = TRUE)
@@ -404,11 +460,18 @@ http_get_mediation <- function(request, response) {
         id <- request$parameters_query[["id"]]
         marker_id <- request$parameters_query[["marker_id"]]
         dataset_mediate <- request$parameters_query[["dataset_mediate"]]
-        intcovar <- request$parameters_query[["intcovar"]]
         expand <- to_boolean(request$parameters_query[["expand"]])
 
         if (tolower(nvl(intcovar, "")) %in% c("", "none")) {
             intcovar <- NULL
+        }
+
+        if (gtools::invalid(dataset)) {
+            stop('dataset is required')
+        } else if (gtools::invalid(id)) {
+            stop('id is required')
+        } else if (gtools::invalid(marker_id)) {
+            stop('marker_id is required')
         }
 
         ds <- get_dataset(dataset)
@@ -431,6 +494,7 @@ http_get_mediation <- function(request, response) {
         elapsed <- proc.time() - ptm
         
         data <- list(
+            request = request$parameters_query,
             result = mediation,
             time   = elapsed["elapsed"]
         )
@@ -439,8 +503,11 @@ http_get_mediation <- function(request, response) {
         response$body <- toJSON(data, auto_unbox = TRUE)
     },
     error = function(e) {
-        data <- list(method = "http_get_mediation",
-                     error  = e$message)
+        data <- list(
+            request = request$parameters_query,
+            method = "http_get_mediation",
+            error  = e$message
+        )
         logger$error(paste0("http_get_mediation|", e$message))
         response$status_code <- 400
         response$body <- toJSON(data, auto_unbox = TRUE)
@@ -465,6 +532,16 @@ http_get_snp_assoc_mapping <- function(request, response) {
         if (tolower(nvl(intcovar, "")) %in% c("", "additive")) {
             intcovar <- NULL
         }
+
+        if (gtools::invalid(dataset)) {
+            stop('dataset is required')
+        } else if (gtools::invalid(id)) {
+            stop('id is required')
+        } else if (gtools::invalid(chrom)) {
+            stop('chrom is required')
+        } else if (gtools::invalid(location)) {
+            stop('locstion is required')
+        }
         
         ds <- get_dataset(dataset)
         snp_assoc <- get_snp_assoc_mapping(
@@ -472,6 +549,7 @@ http_get_snp_assoc_mapping <- function(request, response) {
             id          = id,
             chrom       = chrom,
             location    = location,
+            db_file     = db_file, # GLOBAL
             window_size = window_size,
             intcovar    = intcovar,
             cores       = cores
@@ -487,6 +565,7 @@ http_get_snp_assoc_mapping <- function(request, response) {
         elapsed <- proc.time() - ptm
 
         data <- list(
+            request = request$parameters_query,
             result = snp_assoc,
             time   = elapsed["elapsed"]
         )
@@ -495,8 +574,11 @@ http_get_snp_assoc_mapping <- function(request, response) {
         response$body <- toJSON(data, auto_unbox = TRUE)
     },
     error = function(e) {
-        data <- list(method = "http_get_snp_assoc_mapping",
-                     error  = e$message)
+        data <- list(
+            request = request$parameters_query,
+            method = "http_get_snp_assoc_mapping",
+            error  = e$message
+        )
         logger$error(paste0("http_get_snp_assoc_mapping|", e$message))
         response$status_code <- 400
         response$body <- toJSON(data, auto_unbox = TRUE)
@@ -510,6 +592,10 @@ http_get_lod_peaks <- function(request, response) {
       
         dataset <- request$parameters_query[["dataset"]]
         expand <- to_boolean(request$parameters_query[["expand"]])
+
+        if (gtools::invalid(dataset)) {
+            stop('dataset is required')
+        }
 
         # get the LOD peaks for each covarint
         ds <- get_dataset(dataset)
@@ -527,6 +613,7 @@ http_get_lod_peaks <- function(request, response) {
         elapsed <- proc.time() - ptm
       
         data <- list(
+            request = request$parameters_query,
             id     = dataset,
             result = peaks,
             time   = elapsed["elapsed"]
@@ -536,8 +623,11 @@ http_get_lod_peaks <- function(request, response) {
         response$body <- toJSON(data, auto_unbox = TRUE)
     },
     error = function(e) {
-        data <- list(method = "http_get_lod_peaks",
-                     error  = e$message)
+        data <- list(
+            request = request$parameters_query,
+            method = "http_get_lod_peaks",
+            error  = e$message
+        )
         logger$error(paste0("http_get_lod_peaks|", e$message))
         response$status_code <- 400
         response$body <- toJSON(data, auto_unbox = TRUE)
@@ -559,6 +649,12 @@ http_get_correlation <- function(request, response) {
             intcovar <- NULL
         }
         
+        if (gtools::invalid(dataset)) {
+            stop('dataset is required')
+        } else if (gtools::invalid(id)) {
+            stop('id is required')
+        }
+
         ds <- get_dataset(dataset)
         ds_correlate <- get_dataset(nvl(dataset, dataset_correlate))
         correlation <- get_correlation(
@@ -572,15 +668,21 @@ http_get_correlation <- function(request, response) {
 
         elapsed <- proc.time() - ptm
         
-        data <- list(result = correlation,
-                     time   = elapsed["elapsed"])
+        data <- list(
+            request = request$parameters_query,
+            result = correlation,
+            time   = elapsed["elapsed"]
+        )
         
         logger$info(paste0("http_get_correlation|", elapsed["elapsed"]))
         response$body <- toJSON(data, auto_unbox = TRUE)
     },
     error = function(e) {
-        data <- list(method = "http_get_correlation",
-                     error  = e$message)
+        data <- list(
+            request = request$parameters_query,
+            method = "http_get_correlation",
+            error  = e$message
+        )
         logger$error(paste0("http_get_correlation|", e$message))
         response$status_code <- 400
         response$body <- toJSON(data, auto_unbox = TRUE)
@@ -601,6 +703,16 @@ http_get_correlation_plot_data <- function(request, response) {
             intcovar <- NULL
         }
         
+        if (gtools::invalid(dataset)) {
+            stop('dataset is required')
+        } else if (gtools::invalid(id)) {
+            stop('id is required')
+        } else if (gtools::invalid(dataset_correlate)) {
+            stop('dataset_correlate is required')
+        } else if (gtools::invalid(id_correlate)) {
+            stop('id_correlate is required')
+        }
+
         ds <- get_dataset(dataset)
         ds_correlate <- get_dataset(nvl(dataset, dataset_correlate))
         correlation <- get_correlation_plot_data(
@@ -614,6 +726,7 @@ http_get_correlation_plot_data <- function(request, response) {
         elapsed <- proc.time() - ptm
         
         data <- list(
+            request = request$parameters_query,
             result = correlation,
             time   = elapsed["elapsed"]
         )
@@ -622,8 +735,11 @@ http_get_correlation_plot_data <- function(request, response) {
         response$body <- toJSON(data, auto_unbox = TRUE)
     },
     error = function(e) {
-        data <- list(method = "http_get_correlation_plot_data",
-                     error  = e$message)
+        data <- list(
+            request = request$parameters_query,
+            method = "http_get_correlation_plot_data",
+            error  = e$message
+        )
         logger$error(paste0("http_get_correlation_plot_data|", e$message))
         response$status_code <- 400
         response$body <- toJSON(data, auto_unbox = TRUE)
