@@ -23,58 +23,6 @@
 #
 # #############################################################################
 
-library(magrittr)
-library(dplyr)
-
-
-#' Fix the environment.
-fix_environment <- function(suffix = NULL) {
-    message("Fixing the enviroment")
-    
-    datasets <- grep("^dataset*", apropos("dataset\\."), value = TRUE)
-
-    for (dataset_id in datasets) {
-        ds <- get(dataset_id)
-        
-        # fix annotations
-        if (tolower(ds$datatype) == "mrna") {
-            ds$annot.mrna %<>% 
-                rename(
-                    gene_id           = matches("gene.id|gene_id"),
-                    nearest_marker_id = 
-                        matches("nearest.marker.id|nearest_marker_id")
-                )
-        } else if (tolower(ds$datatype) == "protein") {
-            ds$annot.protein %<>% 
-                rename(
-                    gene_id           = matches("gene.id|gene_id"),
-                    protein_id        = matches("protein.id|protein_id"),
-                    nearest_marker_id = 
-                        matches("nearest.marker.id|nearest_marker_id")
-                )
-        } else {
-            ds$annot.phenotype %<>% janitor::clean_names()
-        }
-        
-        for (peak in names(ds$lod.peaks)) {
-            ds$lod.peaks[[peak]] %<>% janitor::clean_names()
-        }
-        
-        # fix samples
-        # ds$annot.samples %<>% janitor::clean_names()
-        
-        # fix covar.info
-        ds$covar.info %<>% janitor::clean_names()
-        
-        if (!gtools::invalid(suffix)) {
-            dataset_id <- paste0(dataset_id, suffix)
-        }
-        
-        assign(dataset_id, ds, envir = .GlobalEnv)
-    }
-}
-
-
 # set a variable called debug_mode to TRUE for step 1 above.
 
 if (exists("debug_mode")) {
@@ -119,7 +67,5 @@ if (debug_mode) {
     }
 
     message("Using SNP db file:", db_file)
-    
-    fix_environment()
 }
 

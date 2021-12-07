@@ -174,17 +174,17 @@ http_get_rankings <- function(request, response) {
     result <- tryCatch({
         ptm <- proc.time()
     
-        dataset <- request$parameters_query[["dataset"]]
+        dataset_id <- request$parameters_query[["dataset"]]
         chrom <- request$parameters_query[["chrom"]]
         max_value <- nvl_int(request$parameters_query[["max_value"]], 1000)
 
-        if (gtools::invalid(dataset)) {
-            stop('dataset is required')
+        if (gtools::invalid(dataset_id)) {
+            stop("dataset is required")
         }
 
-        ds <- get_dataset(dataset)
+        dataset <- get_dataset_by_id(dataset)
         rankings <- get_rankings(
-            ds        = ds,
+            dataset   = dataset,
             chrom     = chrom,
             max_value = max_value
         )
@@ -217,7 +217,7 @@ http_get_lodscan <- function(request, response) {
     result <- tryCatch({
         ptm <- proc.time()
       
-        dataset <- request$parameters_query[["dataset"]]
+        dataset_id <- request$parameters_query[["dataset"]]
         id <- request$parameters_query[["id"]]
         intcovar <- request$parameters_query[["intcovar"]]
         cores <- nvl_int(request$parameters_query[["cores"]], 5)
@@ -227,15 +227,15 @@ http_get_lodscan <- function(request, response) {
             intcovar <- NULL
         }
         
-        if (gtools::invalid(dataset)) {
-            stop('dataset is required')
+        if (gtools::invalid(dataset_id)) {
+            stop("dataset is required")
         } else if (gtools::invalid(id)) {
-            stop('id is required')
+            stop("id is required")
         }
 
-        ds <- get_dataset(dataset)
+        ds <- get_dataset_by_id(dataset_id)
         lod <- get_lod_scan(
-            ds       = ds,
+            dataset  = dataset,
             id       = id,
             intcovar = intcovar,
             cores    = cores
@@ -276,7 +276,7 @@ http_get_lodscan_samples <- function(request, response) {
     result <- tryCatch({
         ptm <- proc.time()
         
-        dataset <- request$parameters_query[["dataset"]]
+        dataset_id <- request$parameters_query[["dataset"]]
         id <- request$parameters_query[["id"]]
         intcovar <- request$parameters_query[["intcovar"]]
         chrom <- request$parameters_query[["chrom"]]
@@ -287,19 +287,19 @@ http_get_lodscan_samples <- function(request, response) {
             intcovar <- NULL
         }
         
-        if (gtools::invalid(dataset)) {
-            stop('dataset is required')
+        if (gtools::invalid(dataset_id)) {
+            stop("dataset is required")
         } else if (gtools::invalid(id)) {
-            stop('id is required')
+            stop("id is required")
         } else if (gtools::invalid(intcovar)) {
-            stop('intcovar is required')
+            stop("intcovar is required")
         } else if (gtools::invalid(chrom)) {
-            stop('chrom is required')
+            stop("chrom is required")
         }
 
-        ds <- get_dataset(dataset)
+        dataset <- get_dataset_by_id(dataset_id)
         lod <- get_lod_scan_by_sample(
-            ds       = ds, 
+            dataset  = dataset, 
             id       = id,
             chrom    = chrom,
             intcovar = intcovar,
@@ -343,7 +343,7 @@ http_get_foundercoefficients <- function(request, response) {
     result <- tryCatch({
         ptm <- proc.time()
         
-        dataset <- request$parameters_query[["dataset"]]
+        dataset_id <- request$parameters_query[["dataset"]]
         id <- request$parameters_query[["id"]]
         chrom <- request$parameters_query[["chrom"]]
         intcovar <- request$parameters_query[["intcovar"]]
@@ -356,17 +356,17 @@ http_get_foundercoefficients <- function(request, response) {
             intcovar <- NULL
         }
 
-        if (gtools::invalid(dataset)) {
-            stop('dataset is required')
+        if (gtools::invalid(dataset_id)) {
+            stop("dataset is required")
         } else if (gtools::invalid(id)) {
-            stop('id is required')
+            stop("id is required")
         } else if (gtools::invalid(chrom)) {
-            stop('chrom is required')
+            stop("chrom is required")
         }
 
-        ds <- get_dataset(dataset)
+        dataset <- get_dataset_by_id(dataset_id)
         effect <- get_founder_coefficients(
-            ds       = ds, 
+            dataset  = dataset, 
             id       = id,
             chrom    = chrom, 
             intcovar = intcovar,
@@ -412,19 +412,19 @@ http_get_expression <- function(request, response) {
     result <- tryCatch({
         ptm <- proc.time()
       
-        dataset <- request$parameters_query[["dataset"]]
+        dataset_id <- request$parameters_query[["dataset"]]
         id <- request$parameters_query[["id"]]
       
-        if (gtools::invalid(dataset)) {
-            stop('dataset is required')
+        if (gtools::invalid(dataset_id)) {
+            stop("dataset is required")
         } else if (gtools::invalid(id)) {
-            stop('id is required')
+            stop("id is required")
         }
 
-        ds <- get_dataset(dataset)
+        dataset <- get_dataset_by_id(dataset_id)
         expression <- get_expression(
-            ds = ds, 
-            id = id
+            dataset = dataset, 
+            id      = id
         )
       
         # eliminate the _row column down line for JSON
@@ -458,31 +458,33 @@ http_get_mediation <- function(request, response) {
     result <- tryCatch({
         ptm <- proc.time()
         
-        dataset <- request$parameters_query[["dataset"]]
+        dataset_id <- request$parameters_query[["dataset"]]
         id <- request$parameters_query[["id"]]
         marker_id <- request$parameters_query[["marker_id"]]
-        dataset_mediate <- request$parameters_query[["dataset_mediate"]]
+        dataset_id_mediate <- request$parameters_query[["dataset_mediate"]]
         expand <- to_boolean(request$parameters_query[["expand"]])
 
         if (tolower(nvl(intcovar, "")) %in% c("", "none")) {
             intcovar <- NULL
         }
 
-        if (gtools::invalid(dataset)) {
-            stop('dataset is required')
+        if (gtools::invalid(dataset_id)) {
+            stop("dataset is required")
         } else if (gtools::invalid(id)) {
-            stop('id is required')
+            stop("id is required")
         } else if (gtools::invalid(marker_id)) {
-            stop('marker_id is required')
+            stop("marker_id is required")
         }
 
-        ds <- get_dataset(dataset)
-        ds_mediate <- get_dataset(nvl(dataset, dataset_mediate))
+        dataset <- get_dataset_by_id(dataset_id)
+        dataset_mediate <- 
+            get_dataset_by_id(nvl(dataset_id_mediate, dataset_id))
+
         mediation <- get_mediation(
-            ds              = ds, 
+            dataset         = dataset, 
             id              = id,
             marker_id       = marker_id,
-            ds_mediate      = ds_mediate,
+            dataset_mediate = dataset_mediate,
             intcovar        = intcovar
         )
         
@@ -521,7 +523,7 @@ http_get_snp_assoc_mapping <- function(request, response) {
     result <- tryCatch({
         ptm <- proc.time()
         
-        dataset <- request$parameters_query[["dataset"]]
+        dataset_id <- request$parameters_query[["dataset"]]
         id <- request$parameters_query[["id"]]
         chrom <- request$parameters_query[["chrom"]]
         location <- request$parameters_query[["location"]]
@@ -535,19 +537,19 @@ http_get_snp_assoc_mapping <- function(request, response) {
             intcovar <- NULL
         }
 
-        if (gtools::invalid(dataset)) {
-            stop('dataset is required')
+        if (gtools::invalid(dataset_id)) {
+            stop("dataset is required")
         } else if (gtools::invalid(id)) {
-            stop('id is required')
+            stop("id is required")
         } else if (gtools::invalid(chrom)) {
-            stop('chrom is required')
+            stop("chrom is required")
         } else if (gtools::invalid(location)) {
-            stop('locstion is required')
+            stop("location is required")
         }
         
-        ds <- get_dataset(dataset)
+        dataset <- get_dataset_by_id(dataset_id)
         snp_assoc <- get_snp_assoc_mapping(
-            ds          = ds, 
+            dataset     = dataset, 
             id          = id,
             chrom       = chrom,
             location    = location,
@@ -592,16 +594,16 @@ http_get_lod_peaks <- function(request, response) {
     result <- tryCatch({
         ptm <- proc.time()
       
-        dataset <- request$parameters_query[["dataset"]]
+        dataset_id <- request$parameters_query[["dataset"]]
         expand <- to_boolean(request$parameters_query[["expand"]])
 
-        if (gtools::invalid(dataset)) {
-            stop('dataset is required')
+        if (gtools::invalid(dataset_id)) {
+            stop("dataset is required")
         }
 
         # get the LOD peaks for each covarint
-        ds <- get_dataset(dataset)
-        peaks <- get_lod_peaks_all(ds)
+        dataset <- get_dataset_by_id(dataset)
+        peaks <- get_lod_peaks_all(dataset)
       
         if (!expand) {
             # by converting to data.frame and setting column names to NULL, 
@@ -641,9 +643,9 @@ http_get_correlation <- function(request, response) {
     result <- tryCatch({
         ptm <- proc.time()
         
-        dataset <- request$parameters_query[["dataset"]]
+        dataset_id <- request$parameters_query[["dataset"]]
         id <- request$parameters_query[["id"]]
-        dataset_correlate <- request$parameters_query[["dataset_correlate"]]
+        dataset_id_correlate <- request$parameters_query[["dataset_correlate"]]
         intcovar <- request$parameters_query[["intcovar"]]
         max_items <- nvl_int(request$parameters_query[["max_items"]], 10000)
         
@@ -651,19 +653,21 @@ http_get_correlation <- function(request, response) {
             intcovar <- NULL
         }
         
-        if (gtools::invalid(dataset)) {
-            stop('dataset is required')
+        if (gtools::invalid(dataset_id)) {
+            stop("dataset is required")
         } else if (gtools::invalid(id)) {
-            stop('id is required')
+            stop("id is required")
         }
 
-        ds <- get_dataset(dataset)
-        ds_correlate <- get_dataset(nvl(dataset, dataset_correlate))
+        dataset <- get_dataset_by_id(dataset_id)
+        dataset_correlate <- 
+            get_dataset_by_id(nvl(dataset_id_correlate, dataset_id))
+
         correlation <- get_correlation(
-            ds           = dataset, 
-            id           = id,
-            ds_correlate = ds_correlate,
-            intcovar     = intcovar
+            dataset           = dataset, 
+            id                = id,
+            dataset_correlate = dataset_correlate,
+            intcovar          = intcovar
         )
         
         correlation <- correlation[1:nvl_int(max.items, length(correlation))]        
@@ -695,9 +699,9 @@ http_get_correlation_plot_data <- function(request, response) {
     result <- tryCatch({
         ptm <- proc.time()
         
-        dataset <- request$parameters_query[["dataset"]]
+        dataset_id <- request$parameters_query[["dataset"]]
         id <- request$parameters_query[["id"]]
-        dataset_correlate <- request$parameters_query[["dataset_correlate"]]
+        dataset_id_correlate <- request$parameters_query[["dataset_correlate"]]
         id_correlate <- request$parameters_query[["id_correlate"]]
         intcovar <- request$parameters_query[["intcovar"]]
         
@@ -705,24 +709,26 @@ http_get_correlation_plot_data <- function(request, response) {
             intcovar <- NULL
         }
         
-        if (gtools::invalid(dataset)) {
-            stop('dataset is required')
+        if (gtools::invalid(dataset_id)) {
+            stop("dataset is required")
         } else if (gtools::invalid(id)) {
-            stop('id is required')
-        } else if (gtools::invalid(dataset_correlate)) {
-            stop('dataset_correlate is required')
+            stop("id is required")
+        } else if (gtools::invalid(dataset_id_correlate)) {
+            stop("dataset_correlate is required")
         } else if (gtools::invalid(id_correlate)) {
-            stop('id_correlate is required')
+            stop("id_correlate is required")
         }
 
-        ds <- get_dataset(dataset)
-        ds_correlate <- get_dataset(nvl(dataset, dataset_correlate))
+        dataset <- get_dataset_by_id(dataset)
+        dataset_correlate <- 
+            get_dataset_by_id(nvl(dataset_id_correlate, dataset_id))
+
         correlation <- get_correlation_plot_data(
-            ds           = ds,
-            id           = id,
-            ds_correlate = ds_correlate,
-            intcovar     = intcovar,
-            id_correlate = id_correlate
+            dataset           = dataset,
+            id                = id,
+            dataset_correlate = dataset_correlate,
+            id_correlate      = id_correlate,
+            intcovar          = intcovar
         )
         
         elapsed <- proc.time() - ptm
