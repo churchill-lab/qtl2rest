@@ -170,6 +170,54 @@ http_get_datasets_stats <- function(request, response) {
 }
 
 
+http_get_lod_peaks <- function(request, response) {
+    result <- tryCatch({
+        ptm <- proc.time()
+      
+        dataset_id <- request$parameters_query[["dataset"]]
+        expand <- to_boolean(request$parameters_query[["expand"]])
+
+        if (gtools::invalid(dataset_id)) {
+            stop("dataset is required")
+        }
+
+        # get the LOD peaks for each covarint
+        dataset <- get_dataset_by_id(dataset_id)
+        peaks <- get_lod_peaks_all(dataset)
+      
+        if (!expand) {
+            # by converting to data.frame and setting column names to NULL, 
+            # when converted to JSON, the result will be a 2 dimensional array
+            for (n in names(peaks)) {
+                peaks[[n]] <- as.data.frame(peaks[[n]])
+                colnames(peaks[[n]]) <- NULL
+            }
+        }
+      
+        elapsed <- proc.time() - ptm
+      
+        data <- list(
+            request = request$parameters_query,
+            id     = dataset,
+            result = peaks,
+            time   = elapsed["elapsed"]
+        )
+        
+        logger$info(paste0("http_get_lod_peaks|", elapsed["elapsed"]))
+        response$body <- toJSON(data, auto_unbox = TRUE)
+    },
+    error = function(e) {
+        data <- list(
+            request = request$parameters_query,
+            method = "http_get_lod_peaks",
+            error  = e$message
+        )
+        logger$error(paste0("http_get_lod_peaks|", e$message))
+        response$status_code <- 400
+        response$body <- toJSON(data, auto_unbox = TRUE)
+    })
+}
+
 http_get_rankings <- function(request, response) {
     result <- tryCatch({
         ptm <- proc.time()
@@ -233,7 +281,7 @@ http_get_lodscan <- function(request, response) {
             stop("id is required")
         }
 
-        ds <- get_dataset_by_id(dataset_id)
+        dataset <- get_dataset_by_id(dataset_id)
         lod <- get_lod_scan(
             dataset  = dataset,
             id       = id,
@@ -464,9 +512,9 @@ http_get_mediation <- function(request, response) {
         dataset_id_mediate <- request$parameters_query[["dataset_mediate"]]
         expand <- to_boolean(request$parameters_query[["expand"]])
 
-        if (tolower(nvl(intcovar, "")) %in% c("", "none")) {
-            intcovar <- NULL
-        }
+        #if (tolower(nvl(intcovar, "")) %in% c("", "none")) {
+        #    intcovar <- NULL
+        #}
 
         if (gtools::invalid(dataset_id)) {
             stop("dataset is required")
@@ -484,8 +532,7 @@ http_get_mediation <- function(request, response) {
             dataset         = dataset, 
             id              = id,
             marker_id       = marker_id,
-            dataset_mediate = dataset_mediate,
-            intcovar        = intcovar
+            dataset_mediate = dataset_mediate
         )
         
         if (!expand) {
@@ -588,56 +635,6 @@ http_get_snp_assoc_mapping <- function(request, response) {
         response$body <- toJSON(data, auto_unbox = TRUE)
     })
 }
-
-
-http_get_lod_peaks <- function(request, response) {
-    result <- tryCatch({
-        ptm <- proc.time()
-      
-        dataset_id <- request$parameters_query[["dataset"]]
-        expand <- to_boolean(request$parameters_query[["expand"]])
-
-        if (gtools::invalid(dataset_id)) {
-            stop("dataset is required")
-        }
-
-        # get the LOD peaks for each covarint
-        dataset <- get_dataset_by_id(dataset)
-        peaks <- get_lod_peaks_all(dataset)
-      
-        if (!expand) {
-            # by converting to data.frame and setting column names to NULL, 
-            # when converted to JSON, the result will be a 2 dimensional array
-            for (n in names(peaks)) {
-                peaks[[n]] <- as.data.frame(peaks[[n]])
-                colnames(peaks[[n]]) <- NULL
-            }
-        }
-      
-        elapsed <- proc.time() - ptm
-      
-        data <- list(
-            request = request$parameters_query,
-            id     = dataset,
-            result = peaks,
-            time   = elapsed["elapsed"]
-        )
-        
-        logger$info(paste0("http_get_lod_peaks|", elapsed["elapsed"]))
-        response$body <- toJSON(data, auto_unbox = TRUE)
-    },
-    error = function(e) {
-        data <- list(
-            request = request$parameters_query,
-            method = "http_get_lod_peaks",
-            error  = e$message
-        )
-        logger$error(paste0("http_get_lod_peaks|", e$message))
-        response$status_code <- 400
-        response$body <- toJSON(data, auto_unbox = TRUE)
-    })
-}
-
 
 http_get_correlation <- function(request, response) {
     result <- tryCatch({
@@ -767,6 +764,12 @@ application$add_get(
 )
 
 application$add_get(
+    path     = "/lodpeaks", 
+    FUN      = http_get_lod_peaks, 
+    add_head = FALSE
+)
+
+application$add_get(
     path     = "/rankings", 
     FUN      = http_get_rankings, 
     add_head = FALSE
@@ -805,12 +808,6 @@ application$add_get(
 application$add_get(
     path     = "/snpassoc", 
     FUN      = http_get_snp_assoc_mapping, 
-    add_head = FALSE
-)
-
-application$add_get(
-    path     = "/lodpeaks", 
-    FUN      = http_get_lod_peaks, 
     add_head = FALSE
 )
 

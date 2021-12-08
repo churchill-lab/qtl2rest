@@ -26,6 +26,10 @@ RUN R -e 'remotes::install_version("glue", version = "1.5.1")' \
  && R -e 'remotes::install_version("cpp11", version = "0.4.2")' \
  && R -e 'remotes::install_version("withr", version = "2.4.3")'
 
+
+RUN R -e 'remotes::install_version("RSQLite", version = "2.2.9")'
+
+
 ADD "https://www.random.org/cgi-bin/randbyte?nbytes=10&format=h" skipcache
 
 # install the wrapper
