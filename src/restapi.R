@@ -120,8 +120,8 @@ http_get_datasets <- function(request, response) {
 
         data <- list(
             request = request$parameters_query,
-            result = datasets,
-            time   = elapsed["elapsed"]
+            result  = datasets,
+            time    = elapsed["elapsed"]
         )
 
         logger$info(paste0("http_get_datasets|", elapsed["elapsed"]))
@@ -130,8 +130,8 @@ http_get_datasets <- function(request, response) {
     error = function(e) {
         data <- list(
             request = request$parameters_query,
-            method = "http_get_datasets",
-            error  = e$message
+            method  = "http_get_datasets",
+            error   = e$message
         )
         logger$error(paste0("http_get_datasets|", e$message))
         response$status_code <- 400
@@ -150,8 +150,8 @@ http_get_datasets_stats <- function(request, response) {
 
         data <- list(
             request = request$parameters_query,
-            result = datasets,
-            time   = elapsed["elapsed"]
+            result  = datasets,
+            time    = elapsed["elapsed"]
         )
         
         logger$info(paste0("http_get_datasets_stats|", elapsed["elapsed"]))
@@ -160,8 +160,8 @@ http_get_datasets_stats <- function(request, response) {
     error = function(e) {
         data <- list(
             request = request$parameters_query,
-            method = "http_get_datasets_stats",
-            error  = e$message
+            method  = "http_get_datasets_stats",
+            error   = e$message
         )
         logger$error(paste0("http_get_datasets_stats|", e$message))
         response$status_code <- 400
@@ -198,9 +198,9 @@ http_get_lod_peaks <- function(request, response) {
       
         data <- list(
             request = request$parameters_query,
-            id     = dataset,
-            result = peaks,
-            time   = elapsed["elapsed"]
+            id      = dataset,
+            result  = peaks,
+            time    = elapsed["elapsed"]
         )
         
         logger$info(paste0("http_get_lod_peaks|", elapsed["elapsed"]))
@@ -209,8 +209,8 @@ http_get_lod_peaks <- function(request, response) {
     error = function(e) {
         data <- list(
             request = request$parameters_query,
-            method = "http_get_lod_peaks",
-            error  = e$message
+            method  = "http_get_lod_peaks",
+            error   = e$message
         )
         logger$error(paste0("http_get_lod_peaks|", e$message))
         response$status_code <- 400
@@ -241,8 +241,8 @@ http_get_rankings <- function(request, response) {
         
         data <- list(
             request = request$parameters_query,
-            result = rankings,
-            time   = elapsed["elapsed"]
+            result  = rankings,
+            time    = elapsed["elapsed"]
         )
         
         logger$info(paste0("http_get_rankings|", elapsed["elapsed"]))
@@ -251,8 +251,8 @@ http_get_rankings <- function(request, response) {
     error = function(e) {
         data <- list(
             request = request$parameters_query,
-            method = "http_get_rankings",
-            error  = e$message
+            method  = "http_get_rankings",
+            error   = e$message
         )
         logger$error(paste0("http_get_rankings|", e$message))
         response$status_code <- 400
@@ -303,16 +303,19 @@ http_get_lodscan <- function(request, response) {
   
         data <- list(
             request = request$parameters_query,
-            result = lod,
-            time   = elapsed["elapsed"]
+            result  = lod,
+            time    = elapsed["elapsed"]
         )
         
         logger$info(paste0("http_get_lodscan|", elapsed["elapsed"]))
         response$body <- toJSON(data, auto_unbox = TRUE)
     },
     error = function(e) {
-        data <- list(method = "http_get_lodscan",
-                     error  = e$message)
+        data <- list(
+            request = request$parameters_query,
+            method  = "http_get_lodscan",
+            error   = e$message
+        )
         logger$error(paste0("http_get_lodscan|", e$message))
         response$status_code <- 400
         response$body <- toJSON(data, auto_unbox = TRUE)
@@ -367,8 +370,8 @@ http_get_lodscan_samples <- function(request, response) {
 
         data <- list(
             request = request$parameters_query,
-            result = lod,
-            time   = elapsed["elapsed"]
+            result  = lod,
+            time    = elapsed["elapsed"]
         )
         
         logger$info(paste0("http_get_lodscan_samples|", elapsed["elapsed"]))
@@ -377,8 +380,8 @@ http_get_lodscan_samples <- function(request, response) {
     error = function(e) {
         data <- list(
             request = request$parameters_query,
-            method = "http_get_lodscan_samples",
-            error  = e$message
+            method  = "http_get_lodscan_samples",
+            error   = e$message
         )
         logger$error(paste0("http_get_lodscan_samples|", e$message))
         response$status_code <- 400
@@ -436,8 +439,8 @@ http_get_foundercoefficients <- function(request, response) {
   
         data <- list(
             request = request$parameters_query,
-            result = effect,
-            time   = elapsed["elapsed"]
+            result  = effect,
+            time    = elapsed["elapsed"]
         )
         
         logger$info(paste0("http_get_foundercoefficients|", elapsed["elapsed"]))
@@ -446,8 +449,8 @@ http_get_foundercoefficients <- function(request, response) {
     error = function(e) {
         data <- list(
             request = request$parameters_query,
-            method = "http_get_foundercoefficients",
-            error  = e$message
+            method  = "http_get_foundercoefficients",
+            error   = e$message
         )
         logger$error(paste0("http_get_foundercoefficients|", e$message))
         response$status_code <- 400
@@ -482,8 +485,8 @@ http_get_expression <- function(request, response) {
       
         data <- list(
             request = request$parameters_query,
-            result = expression,
-            time   = elapsed["elapsed"]
+            result  = expression,
+            time    = elapsed["elapsed"]
         )
         
         logger$info(paste0("http_get_expression|", elapsed["elapsed"]))
@@ -492,8 +495,8 @@ http_get_expression <- function(request, response) {
     error = function(e) {
         data <- list(
             request = request$parameters_query,
-            method = "http_get_expression",
-            error  = e$message
+            method  = "http_get_expression",
+            error   = e$message
         )
         logger$error(paste0("http_get_expression|", e$message))
         response$status_code <- 400
@@ -546,8 +549,8 @@ http_get_mediation <- function(request, response) {
         
         data <- list(
             request = request$parameters_query,
-            result = mediation,
-            time   = elapsed["elapsed"]
+            result  = mediation,
+            time    = elapsed["elapsed"]
         )
         
         logger$info(paste0("http_get_mediation|", elapsed["elapsed"]))
@@ -556,8 +559,8 @@ http_get_mediation <- function(request, response) {
     error = function(e) {
         data <- list(
             request = request$parameters_query,
-            method = "http_get_mediation",
-            error  = e$message
+            method  = "http_get_mediation",
+            error   = e$message
         )
         logger$error(paste0("http_get_mediation|", e$message))
         response$status_code <- 400
@@ -617,8 +620,8 @@ http_get_snp_assoc_mapping <- function(request, response) {
 
         data <- list(
             request = request$parameters_query,
-            result = snp_assoc,
-            time   = elapsed["elapsed"]
+            result  = snp_assoc,
+            time    = elapsed["elapsed"]
         )
         
         logger$info(paste0("http_get_snp_assoc_mapping|", elapsed["elapsed"]))
@@ -627,8 +630,8 @@ http_get_snp_assoc_mapping <- function(request, response) {
     error = function(e) {
         data <- list(
             request = request$parameters_query,
-            method = "http_get_snp_assoc_mapping",
-            error  = e$message
+            method  = "http_get_snp_assoc_mapping",
+            error   = e$message
         )
         logger$error(paste0("http_get_snp_assoc_mapping|", e$message))
         response$status_code <- 400
@@ -673,8 +676,8 @@ http_get_correlation <- function(request, response) {
         
         data <- list(
             request = request$parameters_query,
-            result = correlation,
-            time   = elapsed["elapsed"]
+            result  = correlation,
+            time    = elapsed["elapsed"]
         )
         
         logger$info(paste0("http_get_correlation|", elapsed["elapsed"]))
@@ -683,8 +686,8 @@ http_get_correlation <- function(request, response) {
     error = function(e) {
         data <- list(
             request = request$parameters_query,
-            method = "http_get_correlation",
-            error  = e$message
+            method  = "http_get_correlation",
+            error   = e$message
         )
         logger$error(paste0("http_get_correlation|", e$message))
         response$status_code <- 400
@@ -732,8 +735,8 @@ http_get_correlation_plot_data <- function(request, response) {
         
         data <- list(
             request = request$parameters_query,
-            result = correlation,
-            time   = elapsed["elapsed"]
+            result  = correlation,
+            time    = elapsed["elapsed"]
         )
         
         logger$info(paste0("http_get_correlation_plot_data|", elapsed["elapsed"]))
@@ -742,8 +745,8 @@ http_get_correlation_plot_data <- function(request, response) {
     error = function(e) {
         data <- list(
             request = request$parameters_query,
-            method = "http_get_correlation_plot_data",
-            error  = e$message
+            method  = "http_get_correlation_plot_data",
+            error   = e$message
         )
         logger$error(paste0("http_get_correlation_plot_data|", e$message))
         response$status_code <- 400
