@@ -110,6 +110,17 @@ logger = Logger$new("trace", printer = printer_pipe)
 application$append_middleware(middleware_gzip)
 
 
+log_error <- function(error, request) {
+    param_string <- paste(
+        names(request$parameters_query),
+        request$parameters_query,
+        sep="=",
+        collapse="&")
+
+    logger$error(paste0(request$path, "|", param_string, "|", error))
+}
+
+
 http_get_datasets <- function(request, response) {
     result <- tryCatch({
         ptm <- proc.time()
@@ -119,21 +130,23 @@ http_get_datasets <- function(request, response) {
         elapsed <- proc.time() - ptm
 
         data <- list(
-            request = request$parameters_query,
-            result  = datasets,
-            time    = elapsed["elapsed"]
+            path       = request$path,
+            parameters = request$parameters_query, 
+            result     = datasets,
+            time       = elapsed["elapsed"]
         )
 
-        logger$info(paste0("http_get_datasets|", elapsed["elapsed"]))
+        logger$info(paste0(request$path, "|", elapsed["elapsed"]))
         response$body <- toJSON(data, auto_unbox = TRUE)
     },
     error = function(e) {
         data <- list(
-            request = request$parameters_query,
-            method  = "http_get_datasets",
-            error   = e$message
+            path       = request$path,
+            parameters = request$parameters_query,
+            error      = "Unable to retrieve datasets",
+            details    = e$message
         )
-        logger$error(paste0("http_get_datasets|", e$message))
+        log_error(e, request)
         response$status_code <- 400
         response$body <- toJSON(data, auto_unbox = TRUE)
     })
@@ -149,21 +162,23 @@ http_get_datasets_stats <- function(request, response) {
         elapsed <- proc.time() - ptm
 
         data <- list(
-            request = request$parameters_query,
-            result  = datasets,
-            time    = elapsed["elapsed"]
+            path       = request$path,
+            parameters = request$parameters_query, 
+            result     = datasets,
+            time       = elapsed["elapsed"]
         )
         
-        logger$info(paste0("http_get_datasets_stats|", elapsed["elapsed"]))
+        logger$info(paste0(request$path, "|", elapsed["elapsed"]))
         response$body <- toJSON(data, auto_unbox = TRUE)
     },
     error = function(e) {
         data <- list(
-            request = request$parameters_query,
-            method  = "http_get_datasets_stats",
-            error   = e$message
+            path       = request$path,
+            parameters = request$parameters_query,
+            error      = "Unable to retrieve dataset stats",
+            details    = e$message
         )
-        logger$error(paste0("http_get_datasets_stats|", e$message))
+        log_error(e, request)
         response$status_code <- 400
         response$body <- toJSON(data, auto_unbox = TRUE)
     })
@@ -197,22 +212,23 @@ http_get_lod_peaks <- function(request, response) {
         elapsed <- proc.time() - ptm
       
         data <- list(
-            request = request$parameters_query,
-            id      = dataset,
-            result  = peaks,
-            time    = elapsed["elapsed"]
+            path       = request$path,
+            parameters = request$parameters_query, 
+            result     = peaks,
+            time       = elapsed["elapsed"]
         )
         
-        logger$info(paste0("http_get_lod_peaks|", elapsed["elapsed"]))
+        logger$info(paste0(request$path, "|", elapsed["elapsed"]))
         response$body <- toJSON(data, auto_unbox = TRUE)
     },
     error = function(e) {
         data <- list(
-            request = request$parameters_query,
-            method  = "http_get_lod_peaks",
-            error   = e$message
+            path       = request$path,
+            parameters = request$parameters_query,
+            error      = "Unable to retrieve lod peaks",
+            details    = e$message
         )
-        logger$error(paste0("http_get_lod_peaks|", e$message))
+        log_error(e, request)
         response$status_code <- 400
         response$body <- toJSON(data, auto_unbox = TRUE)
     })
@@ -240,21 +256,23 @@ http_get_rankings <- function(request, response) {
         elapsed <- proc.time() - ptm
         
         data <- list(
-            request = request$parameters_query,
-            result  = rankings,
-            time    = elapsed["elapsed"]
+            path       = request$path,
+            parameters = request$parameters_query, 
+            result     = rankings,
+            time       = elapsed["elapsed"]
         )
         
-        logger$info(paste0("http_get_rankings|", elapsed["elapsed"]))
+        logger$info(paste0(request$path, "|", elapsed["elapsed"]))
         response$body <- toJSON(data, auto_unbox = TRUE)
     },
     error = function(e) {
         data <- list(
-            request = request$parameters_query,
-            method  = "http_get_rankings",
-            error   = e$message
+            path       = request$path,
+            parameters = request$parameters_query,
+            error      = "Unable to retrieve rankings",
+            details    = e$message
         )
-        logger$error(paste0("http_get_rankings|", e$message))
+        log_error(e, request)
         response$status_code <- 400
         response$body <- toJSON(data, auto_unbox = TRUE)
     })
@@ -302,21 +320,23 @@ http_get_lodscan <- function(request, response) {
         elapsed <- proc.time() - ptm
   
         data <- list(
-            request = request$parameters_query,
-            result  = lod,
-            time    = elapsed["elapsed"]
+            path       = request$path,
+            parameters = request$parameters_query, 
+            result     = lod,
+            time       = elapsed["elapsed"]
         )
         
-        logger$info(paste0("http_get_lodscan|", elapsed["elapsed"]))
+        logger$info(paste0(request$path, "|", elapsed["elapsed"]))
         response$body <- toJSON(data, auto_unbox = TRUE)
     },
     error = function(e) {
         data <- list(
-            request = request$parameters_query,
-            method  = "http_get_lodscan",
-            error   = e$message
+            path       = request$path,
+            parameters = request$parameters_query,
+            error      = "Unable to retrieve LOD scan data",
+            details    = e$message
         )
-        logger$error(paste0("http_get_lodscan|", e$message))
+        log_error(e, request)
         response$status_code <- 400
         response$body <- toJSON(data, auto_unbox = TRUE)
     })
@@ -369,21 +389,23 @@ http_get_lodscan_samples <- function(request, response) {
         elapsed <- proc.time() - ptm
 
         data <- list(
-            request = request$parameters_query,
-            result  = lod,
-            time    = elapsed["elapsed"]
+            path       = request$path,
+            parameters = request$parameters_query, 
+            result     = lod,
+            time       = elapsed["elapsed"]
         )
         
-        logger$info(paste0("http_get_lodscan_samples|", elapsed["elapsed"]))
+        logger$info(paste0(request$path, "|", elapsed["elapsed"]))
         response$body <- toJSON(data, auto_unbox = TRUE)
     },
     error = function(e) {
         data <- list(
-            request = request$parameters_query,
-            method  = "http_get_lodscan_samples",
-            error   = e$message
+            path       = request$path,
+            parameters = request$parameters_query,
+            error      = "Unable to retrieve LOD scan data by sample",
+            details    = e$message
         )
-        logger$error(paste0("http_get_lodscan_samples|", e$message))
+        log_error(e, request)
         response$status_code <- 400
         response$body <- toJSON(data, auto_unbox = TRUE)
     })
@@ -398,11 +420,11 @@ http_get_foundercoefficients <- function(request, response) {
         id <- request$parameters_query[["id"]]
         chrom <- request$parameters_query[["chrom"]]
         intcovar <- request$parameters_query[["intcovar"]]
-        blup <- request$parameters_query[["blup"]]
+        blup <- to_boolean(request$parameters_query[["blup"]])
         cores <- nvl_int(request$parameters_query[["cores"]], 5)
         expand <- to_boolean(request$parameters_query[["expand"]])
         center <- to_boolean(nvl(request$parameters_query[["center"]], "TRUE"))
-        
+
         if (tolower(nvl(intcovar, "")) %in% c("", "additive")) {
             intcovar <- NULL
         }
@@ -438,21 +460,23 @@ http_get_foundercoefficients <- function(request, response) {
         elapsed <- proc.time() - ptm
   
         data <- list(
-            request = request$parameters_query,
-            result  = effect,
-            time    = elapsed["elapsed"]
+            request    = request$path,
+            parameters = request$parameters_query, 
+            result     = effect,
+            time       = elapsed["elapsed"]
         )
         
-        logger$info(paste0("http_get_foundercoefficients|", elapsed["elapsed"]))
+        logger$info(paste0(request$path, "|", elapsed["elapsed"]))
         response$body <- toJSON(data, auto_unbox = TRUE)
     },
     error = function(e) {
         data <- list(
-            request = request$parameters_query,
-            method  = "http_get_foundercoefficients",
-            error   = e$message
+            path       = request$path,
+            parameters = request$parameters_query,
+            error      = "Unable to retrieve founder coefficient data",
+            details    = e$message
         )
-        logger$error(paste0("http_get_foundercoefficients|", e$message))
+        log_error(e, request)
         response$status_code <- 400
         response$body <- toJSON(data, auto_unbox = TRUE)
     })
@@ -484,21 +508,23 @@ http_get_expression <- function(request, response) {
         elapsed <- proc.time() - ptm
       
         data <- list(
-            request = request$parameters_query,
-            result  = expression,
-            time    = elapsed["elapsed"]
+            path       = request$path,
+            parameters = request$parameters_query, 
+            result     = expression,
+            time       = elapsed["elapsed"]
         )
         
-        logger$info(paste0("http_get_expression|", elapsed["elapsed"]))
+        logger$info(paste0(request$path, "|", elapsed["elapsed"]))
         response$body <- toJSON(data, auto_unbox = TRUE)
     },
     error = function(e) {
         data <- list(
-            request = request$parameters_query,
-            method  = "http_get_expression",
-            error   = e$message
+            path       = request$path,
+            parameters = request$parameters_query,
+            error      = "Unable to retrieve expression data",
+            details    = e$message
         )
-        logger$error(paste0("http_get_expression|", e$message))
+        log_error(e, request)
         response$status_code <- 400
         response$body <- toJSON(data, auto_unbox = TRUE)
     })
@@ -548,21 +574,23 @@ http_get_mediation <- function(request, response) {
         elapsed <- proc.time() - ptm
         
         data <- list(
-            request = request$parameters_query,
-            result  = mediation,
-            time    = elapsed["elapsed"]
+            path       = request$path,
+            parameters = request$parameters_query, 
+            result     = mediation,
+            time       = elapsed["elapsed"]
         )
         
-        logger$info(paste0("http_get_mediation|", elapsed["elapsed"]))
+        logger$info(paste0(request$path, "|", elapsed["elapsed"]))
         response$body <- toJSON(data, auto_unbox = TRUE)
     },
     error = function(e) {
         data <- list(
-            request = request$parameters_query,
-            method  = "http_get_mediation",
-            error   = e$message
+            path       = request$path,
+            parameters = request$parameters_query,
+            error      = "Unable to retrieve mediation data",
+            details    = e$message
         )
-        logger$error(paste0("http_get_mediation|", e$message))
+        log_error(e, request)
         response$status_code <- 400
         response$body <- toJSON(data, auto_unbox = TRUE)
     })
@@ -619,21 +647,23 @@ http_get_snp_assoc_mapping <- function(request, response) {
         elapsed <- proc.time() - ptm
 
         data <- list(
-            request = request$parameters_query,
-            result  = snp_assoc,
-            time    = elapsed["elapsed"]
+            path       = request$path,
+            parameters = request$parameters_query, 
+            result     = snp_assoc,
+            time       = elapsed["elapsed"]
         )
         
-        logger$info(paste0("http_get_snp_assoc_mapping|", elapsed["elapsed"]))
+        logger$info(paste0(request$path, "|", elapsed["elapsed"]))
         response$body <- toJSON(data, auto_unbox = TRUE)
     },
     error = function(e) {
         data <- list(
-            request = request$parameters_query,
-            method  = "http_get_snp_assoc_mapping",
-            error   = e$message
+            path       = request$path,
+            parameters = request$parameters_query,
+            error      = "Unable to retrieve SNP association mapping data",
+            details    = e$message
         )
-        logger$error(paste0("http_get_snp_assoc_mapping|", e$message))
+        log_error(e, request)
         response$status_code <- 400
         response$body <- toJSON(data, auto_unbox = TRUE)
     })
@@ -675,21 +705,23 @@ http_get_correlation <- function(request, response) {
         elapsed <- proc.time() - ptm
         
         data <- list(
-            request = request$parameters_query,
-            result  = correlation,
-            time    = elapsed["elapsed"]
+            path       = request$path,
+            parameters = request$parameters_query, 
+            result     = correlation,
+            time       = elapsed["elapsed"]
         )
         
-        logger$info(paste0("http_get_correlation|", elapsed["elapsed"]))
+        logger$info(paste0(request$path, "|", elapsed["elapsed"]))
         response$body <- toJSON(data, auto_unbox = TRUE)
     },
     error = function(e) {
         data <- list(
-            request = request$parameters_query,
-            method  = "http_get_correlation",
-            error   = e$message
+            path       = request$path,
+            parameters = request$parameters_query,
+            error      = "Unable to retrieve correlation data",
+            details    = e$message
         )
-        logger$error(paste0("http_get_correlation|", e$message))
+        log_error(e, request)
         response$status_code <- 400
         response$body <- toJSON(data, auto_unbox = TRUE)
     })
@@ -734,21 +766,23 @@ http_get_correlation_plot_data <- function(request, response) {
         elapsed <- proc.time() - ptm
         
         data <- list(
-            request = request$parameters_query,
-            result  = correlation,
-            time    = elapsed["elapsed"]
+            path       = request$path,
+            parameters = request$parameters_query, 
+            result     = correlation,
+            time       = elapsed["elapsed"]
         )
         
-        logger$info(paste0("http_get_correlation_plot_data|", elapsed["elapsed"]))
+        logger$info(paste0(request$path, "|", elapsed["elapsed"]))
         response$body <- toJSON(data, auto_unbox = TRUE)
     },
     error = function(e) {
         data <- list(
-            request = request$parameters_query,
-            method  = "http_get_correlation_plot_data",
-            error   = e$message
+            path       = request$path,
+            parameters = request$parameters_query,
+            error      = "Unable to retrieve correlation plot data",
+            details    = e$message
         )
-        logger$error(paste0("http_get_correlation_plot_data|", e$message))
+        log_error(e, request)
         response$status_code <- 400
         response$body <- toJSON(data, auto_unbox = TRUE)
     })
