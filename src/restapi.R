@@ -234,6 +234,7 @@ http_get_lod_peaks <- function(request, response) {
     })
 }
 
+
 http_get_rankings <- function(request, response) {
     result <- tryCatch({
         ptm <- proc.time()
@@ -270,6 +271,49 @@ http_get_rankings <- function(request, response) {
             path       = request$path,
             parameters = request$parameters_query,
             error      = "Unable to retrieve rankings",
+            details    = e$message
+        )
+        log_error(e, request)
+        response$status_code <- 400
+        response$body <- toJSON(data, auto_unbox = TRUE)
+    })
+}
+
+http_id_exists <- function(request, response) {
+    result <- tryCatch({
+        ptm <- proc.time()
+      
+        id <- request$parameters_query[["id"]]
+        dataset_id <- request$parameters_query[["dataset"]]
+        
+        if (gtools::invalid(id)) {
+            stop("id is required")
+        }
+
+        if (gtools::invalid(dataset_id)) {
+            ret <- qtl2api::id_exists(id)
+        } else {
+            dataset <- get_dataset_by_id(dataset_id)
+            ret <- qtl2api::id_exists(id, dataset)
+        }
+        
+        elapsed <- proc.time() - ptm
+  
+        data <- list(
+            path       = request$path,
+            parameters = request$parameters_query, 
+            result     = ret,
+            time       = elapsed["elapsed"]
+        )
+        
+        logger$info(paste0(request$path, "|", elapsed["elapsed"]))
+        response$body <- toJSON(data, auto_unbox = TRUE)
+    },
+    error = function(e) {
+        data <- list(
+            path       = request$path,
+            parameters = request$parameters_query,
+            error      = "Unable to determine if id exists",
             details    = e$message
         )
         log_error(e, request)
@@ -809,6 +853,12 @@ application$add_get(
 application$add_get(
     path     = "/rankings", 
     FUN      = http_get_rankings, 
+    add_head = FALSE
+)
+
+application$add_get(
+    path     = "/idexists", 
+    FUN      = http_id_exists, 
     add_head = FALSE
 )
 
