@@ -121,6 +121,47 @@ log_error <- function(error, request) {
 }
 
 
+http_get_markers <- function(request, response) {
+    result <- tryCatch({
+        ptm <- proc.time()
+    
+        chrom <- request$parameters_query[["chrom"]]
+
+        ret <- markers %>% 
+            janitor::clean_names() %>% 
+            dplyr::select(marker_id, chr, bp = pos) %>% 
+            dplyr::mutate(bp = bp * 1000000)
+
+        if (!is.null(chrom)) {
+            ret <- ret %>% dplyr::filter(.data$chr == chrom)
+        }
+        
+        elapsed <- proc.time() - ptm
+        
+        data <- list(
+            path       = request$path,
+            parameters = request$parameters_query, 
+            result     = ret,
+            time       = elapsed["elapsed"]
+        )
+        
+        logger$info(paste0(request$path, "|", elapsed["elapsed"]))
+        response$body <- toJSON(data, auto_unbox = TRUE)
+    },
+    error = function(e) {
+        data <- list(
+            path       = request$path,
+            parameters = request$parameters_query,
+            error      = "Unable to retrieve markers",
+            details    = e$message
+        )
+        log_error(e, request)
+        response$status_code <- 400
+        response$body <- toJSON(data, auto_unbox = TRUE)
+    })
+}
+
+
 http_get_datasets <- function(request, response) {
     result <- tryCatch({
         ptm <- proc.time()
@@ -247,7 +288,7 @@ http_get_rankings <- function(request, response) {
             stop("dataset is required")
         }
 
-        dataset <- get_dataset_by_id(dataset)
+        dataset <- get_dataset_by_id(dataset_id)
         rankings <- get_rankings(
             dataset   = dataset,
             chrom     = chrom,
@@ -278,6 +319,7 @@ http_get_rankings <- function(request, response) {
         response$body <- toJSON(data, auto_unbox = TRUE)
     })
 }
+
 
 http_id_exists <- function(request, response) {
     result <- tryCatch({
@@ -831,6 +873,12 @@ http_get_correlation_plot_data <- function(request, response) {
         response$body <- toJSON(data, auto_unbox = TRUE)
     })
 }
+
+application$add_get(
+    path     = "/markers", 
+    FUN      = http_get_markers, 
+    add_head = FALSE
+)
 
 application$add_get(
     path     = "/datasets", 
