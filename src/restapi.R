@@ -127,21 +127,14 @@ http_get_markers <- function(request, response) {
     
         chrom <- request$parameters_query[["chrom"]]
 
-        ret <- markers %>% 
-            janitor::clean_names() %>% 
-            dplyr::select(marker_id, chr, bp = pos) %>% 
-            dplyr::mutate(bp = bp * 1000000)
+        markers <- qtl2api::get_markers(chrom)
 
-        if (!is.null(chrom)) {
-            ret <- ret %>% dplyr::filter(.data$chr == chrom)
-        }
-        
         elapsed <- proc.time() - ptm
         
         data <- list(
             path       = request$path,
             parameters = request$parameters_query, 
-            result     = ret,
+            result     = markers,
             time       = elapsed["elapsed"]
         )
         
