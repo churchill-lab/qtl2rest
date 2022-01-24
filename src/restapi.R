@@ -830,7 +830,7 @@ http_get_correlation_plot_data <- function(request, response) {
             stop("id_correlate is required")
         }
 
-        dataset <- get_dataset_by_id(dataset)
+        dataset <- get_dataset_by_id(dataset_id)
         dataset_correlate <- 
             get_dataset_by_id(nvl(dataset_id_correlate, dataset_id))
 
