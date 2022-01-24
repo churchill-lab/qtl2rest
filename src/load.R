@@ -36,7 +36,7 @@ if (debug_mode) {
 } else {
     message("Finding the data files to load...")
     rdata_files <- list.files(
-        "/app/qtl2rest/data/radata",
+        "/app/qtl2rest/data/rdata",
         "\\.RData$",
         ignore.case = TRUE,
         full.names = TRUE
