@@ -18,7 +18,7 @@ RUN R -e 'remotes::install_version("dbplyr", version = "2.1.1")' \
  && R -e 'remotes::install_version("qtl2", version="0.28")'
 
 # Uncomment the following when wanting to force re-compile of anything below
-ADD "https://www.random.org/cgi-bin/randbyte?nbytes=10&format=h" skipcache
+#ADD "https://www.random.org/cgi-bin/randbyte?nbytes=10&format=h" skipcache
 
 # install the wrapper
 RUN R -e 'remotes::install_github("churchill-lab/qtl2api")'
@@ -26,7 +26,7 @@ RUN R -e 'remotes::install_github("churchill-lab/qtl2api")'
 SHELL ["/bin/bash", "-c"]
 
 ENV INSTALL_PATH /app/qtl2rest
-RUN mkdir -p $INSTALL_PATH/data $INSTALL_PATH/conf
+RUN mkdir -p $INSTALL_PATH/data/rdata $INSTALL_PATH/data/sqlite $INSTALL_PATH/conf
 
 WORKDIR $INSTALL_PATH
 

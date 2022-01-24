@@ -60,10 +60,10 @@ if (debug_mode) {
         for (f in rds_files) {
             elem <- tolower(tools::file_path_sans_ext(basename(f)))
 
-            if ("dataset." != substr(elem, 1, 8)) {
-                # making the element start with "dataset." confirms a dataset
-                elem <- paste0("dataset.", elem)
-            }
+            #if ("dataset." != substr(elem, 1, 8)) {
+            #    # making the element start with "dataset." confirms a dataset
+            #    elem <- paste0("dataset.", elem)
+            #}
 
             message("Loading the RDS file: ", f, " into ", elem)
             temp <- readRDS(f)
