@@ -60,13 +60,21 @@ if (debug_mode) {
         for (f in rds_files) {
             elem <- tools::file_path_sans_ext(basename(f))
 
-            #if ("dataset." != substr(elem, 1, 8)) {
-            #    # making the element start with "dataset." confirms a dataset
-            #    elem <- paste0("dataset.", elem)
-            #}
-
             message("Loading the RDS file: ", f, " into ", elem)
             temp <- readRDS(f)
+
+            # check for dataset
+            if (exists('annot.samples', temp) &&
+                exists('covar.info', temp) &&
+                exists('datatype', temp) &&
+                exists('data', temp)) {
+
+                if ("dataset." != tolower(substr(elem, 1, 8))) {
+                    # making the element start with "dataset." confirms a dataset
+                    elem <- paste0("dataset.", elem)
+                }
+            }
+
             assign(elem, temp, .GlobalEnv)
         }
     }
