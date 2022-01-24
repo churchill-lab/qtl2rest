@@ -58,7 +58,7 @@ if (debug_mode) {
 
     if (length(rds_files) >= 0) {
         for (f in rds_files) {
-            elem <- tolower(tools::file_path_sans_ext(basename(f)))
+            elem <- tools::file_path_sans_ext(basename(f))
 
             #if ("dataset." != substr(elem, 1, 8)) {
             #    # making the element start with "dataset." confirms a dataset
