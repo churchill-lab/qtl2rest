@@ -1,25 +1,24 @@
-
-
 # #############################################################################
 #
-# Load the main data file.
+# Load the main data file(s).
 #
 # This was intended to be used in a controlled Docker environment and has
 # some assumptions as to where the RData file resides and how it should be
 # named.  For SNP association mapping, there also needs to be a SQLite
 # database containing SNP information.
 #
-# Please see: https://github.com/churchill-lab/qtlapi/
+# Please see: https://github.com/churchill-lab/qtl2api/
 #
-# There are 2 methods in which we can utilize this script.
+# There are 3 methods in which we can utilize this script.
 #
 #     1. Pre load the RData file into the environment and set db.file to
 #        the location of where the SNP database resides on disk.
 #
 #                     - OR -
 #
-#     2. Place a file with ".RData" extension in /app/qtlapi/data as well as
-#        a file with a ".sqlite" extension for the SNP database.
+#     2. Place a file with ".RData" and/or ".RDS" extension in 
+#        /app/qtlapi/data as well as a file with a ".sqlite" extension
+#        for the SNP database.
 #
 # #############################################################################
 
@@ -35,35 +34,60 @@ if (debug_mode) {
     message("DEBUG MODE: Make sure the data is loaded and db_file is defined")
     message("DEBUG MODE: Make sure to run fix_environment")
 } else {
-    message("Finding the data file to load...")
-    data_files <- list.files(
-        "/app/qtl2rest/data",
+    message("Finding the data files to load...")
+    rdata_files <- list.files(
+        "/app/qtl2rest/data/radata",
         "\\.RData$",
         ignore.case = TRUE,
         full.names = TRUE
     )
 
-    if (length(data_files) == 0) {
-        stop("There needs to be an .RData file in /app/qtl2rest/data")
-    } else if (length(data_files) > 1) {
-        stop("There needs to be only 1 .RData file in /app/qtl2rest/data")
+    if (length(rdata_files) >= 0) {
+        for (f in rdata_files) {
+            message("Loading the RDATA file:", f)
+            load(f, .GlobalEnv)
+        }
     }
 
-    message("Loading the data file:", data_files)
+    rds_files <- list.files(
+        "/app/qtl2rest/data/rdata",
+        "\\.Rds$",
+        ignore.case = TRUE,
+        full.names = TRUE
+    )
 
-    load(data_files, .GlobalEnv)
+    if (length(rds_files) >= 0) {
+        for (f in rds_files) {
+            elem <- tolower(tools::file_path_sans_ext(basename(f)))
+
+            if ("dataset." != substr(elem, 1, 8)) {
+                # making the element start with "dataset." confirms a dataset
+                elem <- paste0("dataset.", elem)
+            }
+
+            message("Loading the RDS file: ", f, " into ", elem)
+            temp <- readRDS(f)
+            assign(elem, temp, .GlobalEnv)
+        }
+    }
+
+    if ((length(rdata_files) == 0) && (length(rds_files) == 0)) {
+        stop("There needs to be .RData/.Rds file(s) in /app/qtl2rest/data/rdata")
+    }
+
+    rm(f, elem, temp, rdata_files, rds_files)
 
     db_file <- list.files(
-        "/app/qtl2rest/data",
+        "/app/qtl2rest/data/sqlite",
         "\\.sqlite$",
         ignore.case = TRUE,
         full.names = TRUE
     )
 
     if (length(db_file) == 0) {
-        stop("There needs to be an .sqlite file in /app/qtl2rest/data")
+        stop("There needs to be an .sqlite file in /app/qtl2rest/data/sqlite")
     } else if (length(db_file) > 1) {
-        stop("There needs to be only 1 .sqlite file in /app/qtl2rest/data")
+        stop("There needs to be only 1 .sqlite file in /app/qtl2rest/data/sqlite")
     }
 
     message("Using SNP db file:", db_file)
