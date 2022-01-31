@@ -35,6 +35,8 @@ if (debug_mode) {
     message("DEBUG MODE: Make sure to run fix_environment")
 } else {
     message("Finding the data files to load...")
+    envElements <- list()
+
     rdata_files <- list.files(
         "/app/qtl2rest/data/rdata",
         "\\.RData$",
@@ -45,7 +47,14 @@ if (debug_mode) {
     if (length(rdata_files) >= 0) {
         for (f in rdata_files) {
             message("Loading the RDATA file:", f)
-            load(f, .GlobalEnv)
+            tempElems <- load(f, .GlobalEnv)
+            elem <- list (
+                fullFileName = f,
+                baseFileName = basename(f),
+                elements     = tempElems
+            )
+            
+            envElements <- c(envElements, list(elem))
         }
     }
 
@@ -58,9 +67,9 @@ if (debug_mode) {
 
     if (length(rds_files) >= 0) {
         for (f in rds_files) {
-            elem <- tools::file_path_sans_ext(basename(f))
+            elemName <- tools::file_path_sans_ext(basename(f))
 
-            message("Loading the RDS file: ", f, " into ", elem)
+            message("Loading the RDS file: ", f, " into ", elemName)
             temp <- readRDS(f)
 
             # check for dataset
@@ -69,13 +78,21 @@ if (debug_mode) {
                 exists('datatype', temp) &&
                 exists('data', temp)) {
 
-                if ("dataset." != tolower(substr(elem, 1, 8))) {
+                if ("dataset." != tolower(substr(elemName, 1, 8))) {
                     # making the element start with "dataset." confirms a dataset
-                    elem <- paste0("dataset.", elem)
+                    elemName <- paste0("dataset.", elemName)
                 }
             }
 
-            assign(elem, temp, .GlobalEnv)
+            assign(elemName, temp, .GlobalEnv)
+
+            elem <- list(
+                fullFileName = f,
+                baseFileName = basename(f),
+                elements     = elemName
+            )
+
+            envElements <- c(envElements, list(elem))
         }
     }
 

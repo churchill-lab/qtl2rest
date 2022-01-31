@@ -120,6 +120,37 @@ log_error <- function(error, request) {
     logger$error(paste0(request$path, "|", param_string, "|", error))
 }
 
+http_get_env_info <- function(request, response) {
+    result <- tryCatch({
+        ptm <- proc.time()
+
+        envObjects <- envElements
+    
+        elapsed <- proc.time() - ptm
+        
+        data <- list(
+            path       = request$path,
+            parameters = request$parameters_query, 
+            result     = envElements,
+            time       = elapsed["elapsed"]
+        )
+        
+        logger$info(paste0(request$path, "|", elapsed["elapsed"]))
+        response$body <- toJSON(data, auto_unbox = TRUE)
+    },
+    error = function(e) {
+        data <- list(
+            path       = request$path,
+            parameters = request$parameters_query,
+            error      = "Unable to retrieve environment elements",
+            details    = e$message
+        )
+        log_error(e, request)
+        response$status_code <- 400
+        response$body <- toJSON(data, auto_unbox = TRUE)
+    })
+}
+
 
 http_get_markers <- function(request, response) {
     result <- tryCatch({
@@ -866,6 +897,12 @@ http_get_correlation_plot_data <- function(request, response) {
         response$body <- toJSON(data, auto_unbox = TRUE)
     })
 }
+
+application$add_get(
+    path     = "/envinfo", 
+    FUN      = http_get_env_info, 
+    add_head = FALSE
+)
 
 application$add_get(
     path     = "/markers", 
