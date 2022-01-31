@@ -51,9 +51,9 @@ if (debug_mode) {
             elem <- list (
                 fullFileName = f,
                 baseFileName = basename(f),
-                elements     = tempElems
+                elements     = sort(tempElems)
             )
-            
+
             envElements <- c(envElements, list(elem))
         }
     }
