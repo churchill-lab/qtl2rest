@@ -21,7 +21,7 @@ RUN R -e 'remotes::install_version("dbplyr", version = "2.1.1")' \
 #ADD "https://www.random.org/cgi-bin/randbyte?nbytes=10&format=h" skipcache
 
 # install the wrapper
-RUN R -e 'remotes::install_github("churchill-lab/qtl2api")'
+RUN R -e 'remotes::install_github("churchill-lab/qtl2api@0.1.0")'
 
 SHELL ["/bin/bash", "-c"]
 
