@@ -49,9 +49,9 @@ if (debug_mode) {
             message("Loading the RDATA file:", f)
             tempElems <- load(f, .GlobalEnv)
             elem <- list (
-                fullFileName = f,
-                baseFileName = basename(f),
-                elements     = sort(tempElems)
+                fileName = basename(f),
+                fileSize = file.size(f),
+                elements = sort(tempElems)
             )
 
             envElements <- c(envElements, list(elem))
@@ -87,9 +87,9 @@ if (debug_mode) {
             assign(elemName, temp, .GlobalEnv)
 
             elem <- list(
-                fullFileName = f,
-                baseFileName = basename(f),
-                elements     = elemName
+                fileName = basename(f),
+                fileSize = file.size(f),
+                elements = elemName
             )
 
             envElements <- c(envElements, list(elem))
