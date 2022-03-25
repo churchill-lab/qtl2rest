@@ -4,7 +4,7 @@ A Docker image for use with [qtl2api](https://github.com/churchill-lab/qtl2api).
 
 ## Building
 
-    docker build --progress plain -t mattjvincent/qtl2rest:0.1.0 .
+    docker build --progress plain -t mattjvincent/qtl2rest:0.2.0 .
 
 
 ## Running
@@ -25,7 +25,7 @@ The following command will start the Docker image.
         --network qtl2rest \
         -v /data/project.RData:/app/qtl2rest/data/projectData.RData \
         -v /data/ccfoundersnps.sqlite:/app/qtl2rest/data/ccfounders.sqlite -v \
-        mattjvincent/qtl2rest:0.1.0
+        mattjvincent/qtl2rest:0.2.0
 ```
 
 ## API

@@ -809,15 +809,19 @@ http_get_correlation <- function(request, response) {
             dataset_correlate = dataset_correlate,
             intcovar          = intcovar
         )
-        
-        correlation <- correlation[1:nvl_int(max.items, length(correlation))]        
+
+        data <- correlation$correlations        
+        data <- data[1:min(max_items, NROW(data)), ]    
+
+        ret <- list(correlations    = data,
+                    imputed_samples = correlation$imputed_samples)
 
         elapsed <- proc.time() - ptm
         
         data <- list(
             path       = request$path,
             parameters = request$parameters_query, 
-            result     = correlation,
+            result     = ret,
             time       = elapsed["elapsed"]
         )
         
