@@ -876,7 +876,7 @@ http_get_correlation_plot_data <- function(request, response) {
             id_correlate      = id_correlate,
             intcovar          = intcovar
         )
-        
+
         elapsed <- proc.time() - ptm
         
         data <- list(
