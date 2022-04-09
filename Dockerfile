@@ -1,6 +1,6 @@
 FROM mattjvincent/simplerestrserve:0.5.0
 LABEL maintainer="Matthew Vincent <mattjvincent@gmail.com>" \
-	  version="0.2.1"
+	  version="0.2.2"
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
