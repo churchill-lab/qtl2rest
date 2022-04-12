@@ -263,7 +263,7 @@ http_get_lod_peaks <- function(request, response) {
 
         # get the LOD peaks for each covarint
         dataset <- get_dataset_by_id(dataset_id)
-        peaks <- get_lod_peaks_all(dataset)
+        peaks <- get_lod_peaks_dataset(dataset)
       
         if (!expand) {
             # by converting to data.frame and setting column names to NULL, 
@@ -813,8 +813,7 @@ http_get_correlation <- function(request, response) {
         data <- correlation$correlations        
         data <- data[1:min(max_items, NROW(data)), ]    
 
-        ret <- list(correlations    = data,
-                    imputed_samples = correlation$imputed_samples)
+        ret <- list(correlations = data)
 
         elapsed <- proc.time() - ptm
         

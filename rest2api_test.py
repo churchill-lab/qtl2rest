@@ -108,8 +108,10 @@ def get_random_intcovar(dataset):
     for covar_entry in covar_info:
         if covar_entry['interactive']:
             all_intcovars.append(covar_entry['sample_column'])
-    random_index = random.randint(0, len(all_intcovars) - 1)
-    return all_intcovars[random_index]
+    if len(all_intcovars) > 0:
+        random_index = random.randint(0, len(all_intcovars) - 1)
+        return all_intcovars[random_index]
+    return None
 
 def get_random_chrom(dataset):
     return str(random.randint(1, 19))
@@ -165,7 +167,6 @@ def test_apis(base_url):
             "location": location
         }
 
-
         for endpoint in ENDPOINTS:
             url = endpoint['url']
             variables = parse_variables(url)
@@ -174,6 +175,12 @@ def test_apis(base_url):
             print(url_api)
             if is_pheno and not endpoint["pheno"]:
                 # skip non pheno urls
+                print("SKIPPING")
+                continue
+
+            if intcovar is None and endpoint["url"].find("covar") >= 0:
+                # skip covar urls if no covariate
+                print("SKIPPING")
                 continue
 
             api_req = requests.get(f'{base_url}{url_api}')
@@ -188,23 +195,6 @@ def test_apis(base_url):
                 print(f'ERROR: {msg}')
             else:
                 print('OK')
-
-
-
-
-
-        
-
-
-
-        
-
-
-        
-        
-    
-    
-
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
