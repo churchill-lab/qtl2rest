@@ -190,14 +190,47 @@ http_get_datasets <- function(request, response) {
     result <- tryCatch({
         ptm <- proc.time()
 
-        datasets <- get_dataset_info()
+        collapse <- to_boolean(request$parameters_query[["collapse"]])
+
+        ds_info <- get_dataset_info()
+        datasets <- ds_info$datasets
+        ensembl_version <- ds_info$ensembl_version
+
+        if (collapse) {
+            # by converting to data.frame and setting column names to NULL, 
+            # when converted to JSON, the result will be a 2 dimensional array
+            for (n in 1:length(datasets)) {
+                annots <- datasets[[n]]$annotations
+                annots_columns <- colnames(annots)
+                annots <- as.data.frame(annots)
+                colnames(annots) <- NULL
+
+                datasets[[n]]$annotations <- list(
+                    columns = annots_columns,
+                    data    = annots
+                )
+
+                samples <- datasets[[n]]$samples
+                samples_columns <- colnames(samples)
+                samples <- as.data.frame(samples)
+                colnames(samples) <- NULL
+
+                datasets[[n]]$samples <- list(
+                    columns = samples_columns,
+                    data    = samples
+                )
+            }
+        }
 
         elapsed <- proc.time() - ptm
 
         data <- list(
             path       = request$path,
             parameters = request$parameters_query, 
-            result     = datasets,
+            result     = list(
+                datasets        = datasets,
+                ensembl_version = ensembl_version
+            ),
             time       = elapsed["elapsed"]
         )
 
@@ -803,19 +836,19 @@ http_get_correlation <- function(request, response) {
         dataset_correlate <- 
             get_dataset_by_id(nvl(dataset_id_correlate, dataset_id))
 
-        correlation <- get_correlation(
+        correlations <- get_correlation(
             dataset           = dataset, 
             id                = id,
             dataset_correlate = dataset_correlate,
             intcovar          = intcovar
         )
 
-        data <- correlation$correlations        
+        data <- correlations
         data <- data[1:min(max_items, NROW(data)), ]    
 
         ret <- list(correlations = data)
 
-        elapsed <- proc.time() - ptm
+        elapsed <- proc.time() - ptm        
         
         data <- list(
             path       = request$path,
@@ -823,7 +856,7 @@ http_get_correlation <- function(request, response) {
             result     = ret,
             time       = elapsed["elapsed"]
         )
-        
+
         logger$info(paste0(request$path, "|", elapsed["elapsed"]))
         response$body <- toJSON(data, auto_unbox = TRUE)
     },

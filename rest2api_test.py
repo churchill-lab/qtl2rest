@@ -6,6 +6,7 @@ import requests
 import httpx
 
 MAIN = "/datasets"
+MARKERS = "/markers?chrom="
 
 ENDPOINTS = [
     {
@@ -74,11 +75,11 @@ ENDPOINTS = [
         "pheno": True
     }, {
         "id": "correplationplot",
-        "url": "/correlation?dataset={dataset_id}&id={annot_id}&dataset_correlate={dataset_id_correlate}&id_correlate={annot_id_correlate}",
+        "url": "/correlationplot?dataset={dataset_id}&id={annot_id}&dataset_correlate={dataset_id_correlate}&id_correlate={annot_id_correlate}",
         "pheno": True
     }, {
         "id": "correplationplot_covar",
-        "url": "/correlation?dataset={dataset_id}&id={annot_id}&dataset_correlate={dataset_id_correlate}&id_correlate={annot_id_correlate}&intcovar={intcovar}",
+        "url": "/correlationplot?dataset={dataset_id}&id={annot_id}&dataset_correlate={dataset_id_correlate}&id_correlate={annot_id_correlate}&intcovar={intcovar}",
         "pheno": True
     }
 ]
@@ -97,6 +98,10 @@ def get_random_id(dataset):
         annots = dataset["annotations"]
         random_index = random.randint(0, len(annots) - 1)
         return annots[random_index]["protein_id"]
+    elif dataset["datatype"].lower() == "phos":
+        annots = dataset["annotations"]
+        random_index = random.randint(0, len(annots) - 1)
+        return annots[random_index]["phos_id"]
     elif dataset["datatype"][:5].lower() == "pheno":
         annots = dataset["annotations"]
         random_index = random.randint(0, len(annots) - 1)
@@ -113,7 +118,7 @@ def get_random_intcovar(dataset):
         return all_intcovars[random_index]
     return None
 
-def get_random_chrom(dataset):
+def get_random_chrom():
     return str(random.randint(1, 19))
 
 def get_random_nonpheno(datasets):
@@ -122,6 +127,8 @@ def get_random_nonpheno(datasets):
         if dataset["datatype"].lower() == "mrna":
             datasets_nonpheno.append(dataset)
         elif dataset["datatype"].lower() == "protein":
+            datasets_nonpheno.append(dataset)
+        elif dataset["datatype"].lower() == "phos":
             datasets_nonpheno.append(dataset)
     random_index = random.randint(0, len(datasets_nonpheno) - 1)
     return datasets_nonpheno[random_index]
@@ -132,6 +139,17 @@ def test_apis(base_url):
     datasets_data = datasets_req.json()
     datasets_data = datasets_data['result']['datasets']
 
+    chrom = get_random_chrom()
+
+    # grab a marker
+    markers_req = requests.get(f'{base_url}{MARKERS}{chrom}')
+    markers_data = markers_req.json()
+    markers_data = markers_data['result']
+
+    marker = markers_data[random.randint(0, len(markers_data))]
+    marker_id = marker['marker_id']
+    location = marker['pos']
+
     datasets = {}
 
     for d in datasets_data:
@@ -141,17 +159,12 @@ def test_apis(base_url):
         print(dataset_id, dataset['display_name'])
         annot_id = get_random_id(dataset)
         intcovar = get_random_intcovar(dataset)
-        chrom = get_random_chrom(dataset)
-
+        
         # find non pheno datasets, pick random
         dataset_nonpheno = get_random_nonpheno(datasets)
         dataset_id_mediate = dataset_nonpheno["id"]
         dataset_id_correlate = dataset_nonpheno["id"]
         annot_id_correlate = get_random_id(dataset_nonpheno)
-
-        # TODO: fix hardcoding
-        marker_id = "6_53071252"
-        location = 53071252
 
         is_pheno = True if dataset["datatype"][:5].lower() == "pheno" else False
 
