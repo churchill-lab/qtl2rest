@@ -1,6 +1,6 @@
 FROM mattjvincent/simplerestrserve:0.5.0
 LABEL maintainer="Matthew Vincent <mattjvincent@gmail.com>" \
-	  version="0.2.2"
+	  version="0.3.0"
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -21,7 +21,7 @@ RUN R -e 'remotes::install_version("dbplyr", version = "2.1.1")' \
 ADD "https://www.random.org/cgi-bin/randbyte?nbytes=10&format=h" skipcache
 
 # install the wrapper
-RUN R -e 'remotes::install_github("churchill-lab/qtl2api@beta")'
+RUN R -e 'remotes::install_github("churchill-lab/qtl2api@0.3.0")'
 
 SHELL ["/bin/bash", "-c"]
 
