@@ -1,5 +1,5 @@
 FROM mattjvincent/simplerestrserve:0.5.0
-LABEL maintainer="Matthew Vincent <mattjvincent@gmail.com>" \
+LABEL maintainer="Matthew Vincent <matt.vincent@jax.org>" \
 	  version="0.3.0"
 
 RUN apt-get update && \
