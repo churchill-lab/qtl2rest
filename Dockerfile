@@ -1,6 +1,6 @@
-FROM mattjvincent/simplerestrserve:0.5.0
-LABEL maintainer="Matthew Vincent <matt.vincent@jax.org>" \
-	  version="0.3.0"
+FROM churchilllab/simplerestrserve:1.0.0
+LABEL author="Matthew Vincent <matt.vincent@jax.org>"
+LABEL version="0.4.0"
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
