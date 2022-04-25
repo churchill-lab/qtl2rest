@@ -1024,7 +1024,6 @@ application$add_get(
     add_head = FALSE
 )
 
-#application$add_get(path = "/hasannotation", FUN = http_has_annotation, add_head = FALSE)
 
 #RestRserveApp$add_openapi(path = '/openapi.yaml', file_path = 'openapi.yaml')
 #RestRserveApp$add_swagger_ui(path = '/swagger', 
@@ -1036,7 +1035,9 @@ application$add_get(
 #application$add_swagger_ui('/')
 
 
-backend = BackendRserve$new()
+backend = BackendRserve$new(
+    content_type = 'application/json'
+)
 backend$start(application, 
               http_port = 8001, 
               encoding = "utf8", 
