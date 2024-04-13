@@ -10,8 +10,8 @@
 #
 # Please see: https://github.com/churchill-lab/qtl2api/
 #
-# Place files with ".RData" and/or ".RDS" extension in 
-# /app/qtl2rest/data/rdata as well as a file with a ".sqlite" 
+# Place files with ".RData" and/or ".RDS" extension in
+# /app/qtl2rest/data/rdata as well as a file with a ".sqlite"
 # extension for the SNP database.
 #
 # #############################################################################
@@ -100,5 +100,4 @@ if (length(db_file) == 0) {
 }
 
 message("Using SNP db file:", db_file)
-
 
